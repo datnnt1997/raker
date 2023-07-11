@@ -1,4 +1,3 @@
-from selenium import webdriver
 from scrapy_selenium import SeleniumRequest
 
 from webdriver_manager.chrome import ChromeDriverManager
@@ -8,19 +7,19 @@ import scrapy
 
 
 class YouTubeSpider(scrapy.Spider):
-    """
-    A spider for scraping YouTube comments.
-    """
+    """ A spider for scraping YouTube comments."""
     name = 'YouTubeSpider'
 
     start_urls = None
 
     custom_settings = {
+        'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',
         'SELENIUM_DRIVER_NAME': 'chrome',
         'SELENIUM_DRIVER_EXECUTABLE_PATH': ChromeDriverManager().install(),
-        'SELENIUM_DRIVER_ARGUMENTS': ['-headless'],
+        'SELENIUM_DRIVER_ARGUMENTS': [],
         'DOWNLOADER_MIDDLEWARES': {
-            'scrapy_selenium.SeleniumMiddleware': 800
+            # 'scrapy_selenium.SeleniumMiddleware': 800
+            'raker.middlewares.YouTubeMiddleware': 800
         }
     }
 
@@ -38,16 +37,17 @@ class YouTubeSpider(scrapy.Spider):
                 "did you miss an 's'?)"
             )
         for url in self.start_urls:
-            yield SeleniumRequest(url=url, callback=self.parse, wait_time=180, screenshot=True,
-                                  script='window.scrollTo(0, document.body.scrollHeight);'
-                                  )
-
+            yield SeleniumRequest(url=url,
+                                  callback=self.parse,
+                                  wait_time=180,
+                                  screenshot=True,
+                                  script='window.scrollTo(0, document.body.scrollHeight);')
 
     def parse(self, response, **kwargs):
         with open('image.png', 'wb') as image_file:
             image_file.write(response.meta['screenshot'])
-        self._logger.info(f'Parsing {response}')
-        self._logger.info(response.selector.xpath('//title/@text'))
+        comments = response.xpath('//*[@id="comment"]')
+        self._logger.info(f'Found {len(comments)} comments.')
 
     @staticmethod
     def close(spider, reason):
@@ -63,5 +63,5 @@ if __name__ == '__main__':
     from scrapy.crawler import CrawlerProcess
 
     process = CrawlerProcess()
-    process.crawl(YouTubeSpider, urls=['https://www.youtube.com/watch?v=9bZkp7q19f0'])
+    process.crawl(YouTubeSpider, urls=['https://www.youtube.com/watch?v=0Ni_o9YwwUw'])
     process.start()
