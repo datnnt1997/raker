@@ -1,10 +1,12 @@
-from scrapy import Item
+from typing import Optional
+from dataclasses import dataclass, field
 
 
-class YouTubeComment(Item):
-    author: str
+@dataclass
+class YouTubeComment:
     content: str
-    published_at: str
-    updated_at: str
-    like_count: int
-    dislike_count: int
+    _id: str = field(default=None)
+    author: Optional[str] = field(default=None)
+    video_id: Optional[str] = field(default=None)
+    like_count: Optional[int] = field(default=None)
+    reply_count: Optional[int] = field(default=None)
