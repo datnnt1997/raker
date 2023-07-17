@@ -17,7 +17,10 @@ class YouTubeCommentSpider(scrapy.Spider):
     name = 'YTCommentSpider'
     task = 'YTubeComment'
     start_urls = None
-    custom_settings = {'ITEM_PIPELINES': {}}
+    custom_settings = {'ITEM_PIPELINES': {
+        'raker.pipelines.youtube_pipeline.YouTubeNomalizePipeline': 600,
+        'raker.pipelines.youtube_pipeline.YouTubeDuplicatesPipeline.': 700,
+    }}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,7 +32,7 @@ class YouTubeCommentSpider(scrapy.Spider):
         if os.environ.get('MONGO_URI', None):
             cls.custom_settings['ITEM_PIPELINES']['raker.pipelines.mongodb_pipeline.MongoPipeline'] = 800
         else:
-            cls.custom_settings['ITEM_PIPELINES']['raker.pipelines.json_pipeline.JsonWriterPipeline'] = 800
+            cls.custom_settings['ITEM_PIPELINES']['raker.pipelines.youtube_pipeline.YouTubeJsonWriterPipeline'] = 800
         settings.setdict(cls.custom_settings or {}, priority='spider')
 
 
