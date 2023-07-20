@@ -2,8 +2,8 @@ from itemadapter import ItemAdapter
 
 from scrapy.exceptions import DropItem
 
-from .duplicates_pipeline import DuplicatesPipeline
-from .json_pipeline import JsonWriterPipeline
+from raker.pipelines.duplicates_pipeline import DuplicatesPipeline
+from raker.pipelines.json_pipeline import JsonWriterPipeline
 
 import json
 import re
@@ -16,18 +16,7 @@ class YouTubeJsonWriterPipeline(JsonWriterPipeline):
         return item
 
 
-class YouTubeNomalizePipeline:
-    def process_item(self, item, spider):
-        content = item["content"]
-        # Remove \xa0 (non-breaking space) and \u200b (zero-width space) characters
-        content = re.sub("[\xa0\u200b]", " ", content)
-        # Remove multiple spaces, tabs, and newlines
-        content = re.sub("\n+", "\n", content)
-        content = re.sub("\t+", "\t", content)
-        content = re.sub(" +", " ", content)
-        # Remove leading and trailing spaces, tabs, and newlines
-        item["content"] = content.strip()
-        return item
+
 
 
 class YouTubeDuplicatesPipeline(DuplicatesPipeline):
